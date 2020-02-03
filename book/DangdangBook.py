@@ -2,6 +2,7 @@ import urllib
 
 from bs4 import BeautifulSoup
 
+from book import source
 from book.Book import Book
 
 
@@ -27,7 +28,7 @@ class DangdangBook(Book):
             detail_p = i.find('p', {'class':'detail'})
 
             # 获取不到data-original图片链接
-            book = [i.a['title'], detail_p.string, i.a.img['src']]
+            book = [i.a['title'], detail_p.string, i.a.img['src'], source.DANGDANG]
             self.list.append(book)
 
         return len(li)

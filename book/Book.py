@@ -11,6 +11,7 @@ class Book(object):
             'User-Agent': "User-Agent: Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 10.0; WOW64; Trident/7.0; .NET4.0C; .NET4.0E)"}
         self.max_page = 10
         self.page_size = 10
+        self.file_name = "book.md"
 
     def search(self, key):
         try:
@@ -32,7 +33,19 @@ class Book(object):
             print(i)
 
     def save(self):
-        pass
+        with open(self.file_name, "w+", encoding="utf-8") as file:
+            file.seek(0, 0)
+            file.write("## 心理学书单\n")
+            if len(self.list) == 0:
+                return
+
+            file.write("|书名|详情|预览图|来源|\n")
+            file.write("| ----------------- | --------------------------------------------- | ------------------------------------- | ------------- |\n")
+            file.seek(0, 2)
+            for i in self.list:
+                img = "" if i[2] is None else "![]({})".format(i[2])
+                file.write("|{}|{}|{}|{}|\n".format(i[0], i[1], img, i[3]))
+
 
     @abstractmethod
     def getUrl(self, key, current_page):

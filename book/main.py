@@ -1,3 +1,4 @@
+import os
 import time
 
 from book.DangdangBook import DangdangBook
@@ -22,19 +23,23 @@ class BookSpy:
         # self.douban_book.show()
         # self.dangdang_book.show()
         self.jd_book.show()
-        pass
 
     def save(self):
-        pass
+        # self.douban_book.save()
+        # self.dangdang_book.save()
+        self.jd_book.save()
 
 
 def main():
+    begin = time.time()
     bookSpy = BookSpy("情商")
     bookSpy.search()
-    bookSpy.show()
-
-    time.sleep(1000)
-
+    bookSpy.save()
+    # bookSpy.show()
+    end = time.time()
+    print("用时：{}".format(end - begin))
+    os.startfile(bookSpy.dangdang_book.file_name)
+    # time.sleep(1000)
 
 if __name__ == '__main__':
     main()

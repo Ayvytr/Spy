@@ -3,6 +3,7 @@ from urllib.parse import urlencode
 
 from selenium import webdriver
 
+from book import source
 from book.Book import Book
 
 
@@ -41,7 +42,9 @@ class DoubanBook(Book):
             except:
                 pass
 
-            book = [title, detail, photo, score]
+            # book = [title, detail, photo, score]
+            book = [title, detail, photo, source.DOUBAN]
+            self.list.append(book)
             print(book)
 
         return len(books)

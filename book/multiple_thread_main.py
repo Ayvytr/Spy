@@ -17,7 +17,7 @@ from book import source
 class BookThread(threading.Thread):
     def __init__(self, key, list):
         super().__init__()
-        self.max_page = 1
+        self.max_page = 3
         self.key = key
         self.loop = asyncio.new_event_loop()
         self.browser = None
@@ -74,14 +74,17 @@ class DoubanThread(BookThread):
             photo = img.get_property('src')
 
             detail = i.find_element_by_css_selector('div.meta').text
-            # score = '0'
-            # try:
-            #     score = i.find_element_by_class_name('rating').find_element_by_class_name('rating_nums').text
-            # except:
-            #     pass
-            #
-            # book = [title, detail, photo, score]
-            book = [title, detail, photo, source.DOUBAN]
+            score = '0'
+            rating_no = 0
+            try:
+                rating_element = i.find_element_by_class_name('rating')
+                score = rating_element.find_element_by_class_name('rating_nums').text
+                # 评价人数
+                print(rating_no)
+                rating_no = rating_element.find_element_by_class_name('p1').text[1:-1]
+            except:
+                pass
+            book = [title, detail, photo, score, rating_no, source.DOUBAN]
             self.list.append(book)
             # print(book)
 
@@ -125,7 +128,7 @@ class DangdangBook(BookThread):
             detail_p = i.find('p', {'class': 'detail'})
 
             # 获取不到data-original图片链接
-            book = [i.a['title'], detail_p.string, i.a.img['src'], source.DANGDANG]
+            book = [i.a['title'], detail_p.string, i.a.img['src'], None, None, source.DANGDANG]
             # print(book)
             self.list.append(book)
 
@@ -180,7 +183,7 @@ class JdBook(BookThread):
             photo = img.find_element_by_tag_name('img').get_attribute('src')
             title = i.find_element_by_css_selector('div.p-name').find_element_by_tag_name('a') \
                 .find_element_by_tag_name('em').text
-            book = [title, desc, photo, source.JD]
+            book = [title, desc, photo, None, None, source.JD]
             # list.append(book)
             self.list.append(book)
             # print(title, desc, photo)
@@ -193,7 +196,8 @@ class JdBook(BookThread):
 
 class MtBook(object):
     def __init__(self, key):
-        self.file_name = "book.md"
+        # self.file_name = "book.md"
+        self.file_name = "book.csv"
         self.key = key
         self.list = []
 
@@ -213,33 +217,37 @@ class MtBook(object):
         pass
 
     def save(self):
-        with open(self.file_name, "w+", encoding="utf-8") as file:
-            file.seek(0, 0)
-            file.write("## 心理学书单\n")
-            if len(self.list) == 0:
-                return
+        df = pd.DataFrame(self.list, columns=["index", "title", "detail", "img", "score", "rating_no", "source"])
+        df.to_csv(self.file_name, encoding="utf-8")
 
-            # 使用pandas简单统计信息
-            file.write("总计：{}本书籍\n".format(len(self.list)))
 
-            df = pd.DataFrame(self.list, columns=["title", "detail", "img", "source"])
-            file.write("来源\n")
-            file.write(str(df['source'].unique()))
-
-            file.write('\n')
-            file.write(str(df['source'].value_counts()))
-            file.write('\n')
-
-            file.write("\n")
-            file.write("|书名|详情|预览图|来源|\n")
-            file.write(
-                "| ----------------- | --------------------------------------------- | ------------------------------------- | ------------- |\n")
-            file.seek(0, 2)
-            for i in self.list:
-                # 减少耗费流量，不进行图片加载
-                # img = "" if i[2] is None else "![]({})".format(i[2])
-                img = ""
-                file.write("|{}|{}|{}|{}|\n".format(i[0], i[1], img, i[3]))
+# with open(self.file_name, "w+", encoding="utf-8") as file:
+        #     file.seek(0, 0)
+        #     file.write("## 心理学书单\n")
+        #     if len(self.list) == 0:
+        #         return
+        #
+        #     # 使用pandas简单统计信息
+        #     file.write("总计：{}本书籍\n".format(len(self.list)))
+        #
+        #     df = pd.DataFrame(self.list, columns=["title", "detail", "img", "source"])
+        #     file.write("来源\n")
+        #     file.write(str(df['source'].unique()))
+        #
+        #     file.write('\n')
+        #     file.write(str(df['source'].value_counts()))
+        #     file.write('\n')
+        #
+        #     file.write("\n")
+        #     file.write("|书名|详情|预览图|来源|\n")
+        #     file.write(
+        #         "| ----------------- | --------------------------------------------- | ------------------------------------- | ------------- |\n")
+        #     file.seek(0, 2)
+        #     for i in self.list:
+        #         # 减少耗费流量，不进行图片加载
+        #         # img = "" if i[2] is None else "![]({})".format(i[2])
+        #         img = ""
+        #         file.write("|{}|{}|{}|{}|\n".format(i[0], i[1], img, i[3]))
 
 
 def main():
